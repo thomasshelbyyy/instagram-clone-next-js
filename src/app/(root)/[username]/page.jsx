@@ -8,7 +8,19 @@ export const metadata = {
 	title: "Instagram | Profile",
 };
 
-const Page = () => {
+const fetchUser = async (username) => {
+	try {
+		const user = await fetch(
+			`http://localhost:3000/api/user?username=${username}`
+		);
+		console.log(user);
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const Page = async ({ params }) => {
+	fetchUser(params.username);
 	return (
 		<>
 			<div className="w-full flex justify-between px-3 py-2 border-b border-gray-600 fixed top-0 left-0 bg-black md:hidden">

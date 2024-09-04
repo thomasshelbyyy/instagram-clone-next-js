@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Instagram Clone
 
-## Getting Started
+This project is a simple Instagram clone built using React.js and Tailwind CSS. The current version of the application contains two static pages: the Home page and the Profile page. The primary functionalities of the Instagram clone, such as posting, commenting, and following, are not yet implemented.
 
-First, run the development server:
+## Table of Contents
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Introduction](#introduction)
+- [Technologies Used](#technologies-used)
+- [Live Site](#live-site)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Future Improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Introduction
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+This project is an ongoing effort to replicate the basic interface of Instagram using modern web technologies. Currently, it serves as a frontend-only application with two static pages: a Home page and a Profile page.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Technologies Used
 
-## Learn More
+- **React.js**: A JavaScript library for building user interfaces.
+- **Tailwind CSS**: A utility-first CSS framework for creating custom designs without leaving your HTML.
 
-To learn more about Next.js, take a look at the following resources:
+## Live Site
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+[visit live site](www.futureurl.com)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Installation
 
-## Deploy on Vercel
+To get started with this project, follow these steps:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/thomasshelbyyy/instagram-clone
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd instagram-clone
+   ```
+3. Install the necessary dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   `bash
+npm start
+`
+   The application should now be running on http://localhost:3000.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Usage
+
+Currently, the application consists of three static pages:
+
+- **Home Page**: Displays a static layout of the Instagram feed.
+- **Profile Page**: Displays a static layout of a user's profile.
+- **Message Page**: Displays a static layout of a direct message.
+- **Explore Page**: Displays a static layout of a explore content.
+- **Authentication Pges**: Display page to authenticate user.
+
+You can navigate between these pages using the browser's address bar.
+
+## Features
+
+- **Home Page**: A static representation of the Instagram feed.
+- **Profile Page**: A static representation of a user's profile.
+- **Message Page**: A static representation of a direct message.
+- **Explore Page**: A static representation of a explore content.
+- **Search Panel**: A Panel so user can find other user.
+- **Notification Panel**: A Panel so user can see notification.
+- **Add new post Panel**: A Panel to create new post.
+- **Authentication**: Register a new user and login to registred user
+
+## Future Improvements
+
+- Implement core Instagram functionalities such as posting images, liking posts, commenting, and following other users.
+- Add authentication and user management.
+- Improve the design and responsiveness of the pages.
+- Optimize the application for performance.
+
+## Contributing
+
+Contributions are welcome! If you have any ideas, suggestions, or improvements, feel free to open an issue or submit a pull request.

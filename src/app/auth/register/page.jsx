@@ -1,9 +1,10 @@
 import { FaFacebookSquare } from "react-icons/fa";
-import { Satisfy } from "@next/font/google";
+import { Satisfy } from "next/font/google";
 import Link from "next/link";
 import appStore from "@/assets/download-app-store.svg";
 import googlePlay from "@/assets/download-google-play.png";
 import Image from "next/image";
+import RegisterForm from "@/components/Forms/RegisterForm";
 
 const satisfy = Satisfy({
 	weight: ["400"],
@@ -35,60 +36,12 @@ const Page = () => {
 					<div className="flex-1 h-[1px] bg-gray-400"></div>
 				</div>
 
-				<form action="/" className="pt-3 text-black">
-					<input
-						type="text"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Mobile phone or email address"
-					/>
-					<input
-						type="text"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Full Name"
-					/>
-					<input
-						type="text"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Username"
-					/>
-					<input
-						type="password"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Password"
-					/>
-
-					<p className="text-xs text-white">
-						People who use our services may have uploaded your contact
-						information to Instagram.
-						<button className="font-medium text-blue-500">Learn More</button>
-					</p>
-					<p className="text-xs text-white py-2">
-						By signing up you agree to our{" "}
-						<button className="font-medium text-blue-500" type="button">
-							Terms
-						</button>
-						,
-						<button className="font-medium text-blue-500" type="button">
-							Privary and Policy
-						</button>
-						and
-						<button className="font-medium text-blue-500" type="button">
-							Cookies Policy
-						</button>
-					</p>
-
-					<button
-						type="submit"
-						className="w-full py-1 bg-blue-500 text-white rounded-sm"
-					>
-						Sign Up
-					</button>
-				</form>
+				<RegisterForm />
 			</div>
 
 			<div className="rounded-sm border border-gray-300 w-72 p-8 text-sm text-center mt-4">
 				Have and account?{" "}
-				<Link href="/login" className="font-semibold text-blue-500">
+				<Link href="/auth/login" className="font-semibold text-blue-500">
 					{" "}
 					Log In
 				</Link>
@@ -101,7 +54,7 @@ const Page = () => {
 						width={100}
 						height={100}
 						className="w-32"
-						alt=""
+						alt="google play"
 						src={googlePlay}
 					/>
 				</button>
@@ -110,7 +63,7 @@ const Page = () => {
 						width={100}
 						height={100}
 						className="w-32"
-						alt=""
+						alt="app store"
 						src={appStore}
 					/>
 				</button>

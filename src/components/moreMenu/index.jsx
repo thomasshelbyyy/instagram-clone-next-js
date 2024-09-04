@@ -10,9 +10,9 @@ import {
 const MoreMenu = () => {
 	return (
 		<ul
-			className="absolute z-50 w-60 text-sm bg-gray-950 rounded-lg shadow-sm
+			className="absolute z-[99] w-60 text-sm bg-gray-950 rounded-lg shadow-sm
 			md:bottom-0 md:-right-60
-			lg:bottom-12m lg:left-0"
+			lg:bottom-12 lg:left-0"
 		>
 			<li className="w-full">
 				<button className="hover:bg-gray-800 w-full text-left px-4 py-3 flex items-center gap-2 rounded-t-lg">

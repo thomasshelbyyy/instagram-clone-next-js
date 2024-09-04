@@ -32,7 +32,8 @@ const satisfy = Satisfy({
 	weight: ["400"],
 });
 
-const Navigation = () => {
+const Navigation = ({ session }) => {
+	console.log(session);
 	const [smallNavigation, setSmallNavigation] = useState(false);
 	const [isSearchPanelVisible, setSearchPanelVisible] = useState(false);
 	const [notificationPanelVisible, setNotificationPanelVisible] =
@@ -76,7 +77,7 @@ const Navigation = () => {
 					pathname === "/message" || smallNavigation
 						? "lg:items-center"
 						: "lg:w-64 lg:items-start"
-				} h-screen transition duration-1000`}
+				} h-screen transition duration-1000 z-[99]`}
 			>
 				<Link
 					className="w-full text-center flex justify-center lg:justify-start"

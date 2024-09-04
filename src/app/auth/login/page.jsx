@@ -1,20 +1,21 @@
-import { FaFacebookSquare } from "react-icons/fa";
-import { Satisfy } from "@next/font/google";
+import LoginForm from "@/components/Forms/Login";
+import Image from "next/image";
 import Link from "next/link";
+import { FaFacebookSquare } from "react-icons/fa";
+import { Satisfy } from "next/font/google";
 import appStore from "@/assets/download-app-store.svg";
 import googlePlay from "@/assets/download-google-play.png";
-import Image from "next/image";
 
 const satisfy = Satisfy({
-	weight: ["400"],
+	weight: "400",
 	subsets: ["latin"],
 });
 
 export const metadata = {
-	title: "Instagram | Register",
+	title: "Instagram | Login",
 };
 
-const Page = () => {
+const LoginPage = () => {
 	return (
 		<main className="w-full min-h-screen bg-black text-white flex flex-col  items-center py-6">
 			<div className="rounded-sm border border-gray-300 w-72 p-8 text-sm text-center">
@@ -22,25 +23,7 @@ const Page = () => {
 					Instagram
 				</h1>
 
-				<form action="/" className="pt-3 text-black">
-					<input
-						type="text"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Mobile phone or email address"
-					/>
-					<input
-						type="password"
-						className="w-full px-2 py-1 rounded-sm focus:outline-none mb-2"
-						placeholder="Password"
-					/>
-
-					<button
-						type="submit"
-						className="w-full py-1 bg-blue-500 text-white rounded-sm"
-					>
-						Sign Up
-					</button>
-				</form>
+				<LoginForm />
 
 				<div className="flex items-center gap-6 text-gray-400 pt-8">
 					<div className="flex-1 h-[1px] bg-gray-400"></div>
@@ -58,7 +41,7 @@ const Page = () => {
 
 			<div className="rounded-sm border border-gray-300 w-72 p-8 text-sm text-center mt-4">
 				Dont have an account?
-				<Link href="/register" className="font-semibold text-blue-500">
+				<Link href="/auth/register" className="font-semibold text-blue-500">
 					{" "}
 					Sign Up
 				</Link>
@@ -71,7 +54,7 @@ const Page = () => {
 						width={100}
 						height={100}
 						className="w-32"
-						alt=""
+						alt="play store"
 						src={googlePlay}
 					/>
 				</button>
@@ -80,7 +63,7 @@ const Page = () => {
 						width={100}
 						height={100}
 						className="w-32"
-						alt=""
+						alt="app store"
 						src={appStore}
 					/>
 				</button>
@@ -89,4 +72,4 @@ const Page = () => {
 	);
 };
 
-export default Page;
+export default LoginPage;
