@@ -1,5 +1,4 @@
 import { register } from "@/lib/firebase/service";
-import { signIn } from "next-auth/react";
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
