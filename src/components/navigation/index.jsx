@@ -24,15 +24,15 @@ import MoreMenu from "../moreMenu";
 import SearchPanel from "../searchPanel";
 import NotificationPanel from "../notificationPanel";
 import CreatePost from "../createPost";
-import { brookeCagle } from "@/assets/profile/images";
 import Image from "next/image";
+import noProfile from "@/assets/profile/no-profile.png";
 
 const satisfy = Satisfy({
 	subsets: ["latin"],
 	weight: ["400"],
 });
 
-const Navigation = ({ session }) => {
+const Navigation = ({ session, loggedInUser }) => {
 	console.log(session);
 	const [smallNavigation, setSmallNavigation] = useState(false);
 	const [isSearchPanelVisible, setSearchPanelVisible] = useState(false);
@@ -217,13 +217,13 @@ const Navigation = ({ session }) => {
 					<li className="w-full mt-4">
 						<Link
 							className="w-full px-3 py-2 rounded-md flex gap-4 items-center hover:bg-white/30"
-							href="/profile"
+							href={`/${loggedInUser.username}`}
 						>
 							<span>
 								<Image
 									width={100}
 									height={100}
-									src={brookeCagle}
+									src={loggedInUser.profilePictureUrl || noProfile}
 									className="w-8 h-8 rounded-full"
 									alt=""
 								/>

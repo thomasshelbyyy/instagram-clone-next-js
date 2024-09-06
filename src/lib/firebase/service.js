@@ -65,12 +65,33 @@ export async function login(username) {
 }
 
 export async function getUser(username) {
-    const userRef = doc(firestore, "users", username)
-    const snapshot = await getDoc(userRef)
+    const q = query(collection(firestore, "users"), where("username", "==", username))
+    const snapshot = await getDocs(q)
 
-    if(snapshot.exists()) {
-        return {status: true, data: snapshot.data()}
+    const user = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }))
+
+    if (user.length > 0) {
+        return {status: true, data: user[0]}
     } else {
-        return {status: false, message: "user not found"}
+        return {status: false}
+    }
+}
+
+export async function getUserByEmail(email) {
+    const q = query(collection(firestore, "users"), where("email", "==", email))
+    const snapshot = await getDocs(q)
+
+    const user = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }))
+
+    if(user.length > 0) {
+        return {status: true, data: user[0]}
+    } else {
+        return {status: false}
     }
 }

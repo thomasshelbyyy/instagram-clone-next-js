@@ -36,7 +36,12 @@ const LoginPage = () => {
 					Log in with Facebook
 				</button>
 
-				<button className="text-blue-900 font-semibold">Forgot Pasword?</button>
+				<Link
+					href="/auth/forgot-password"
+					className="text-blue-900 font-semibold"
+				>
+					Forgot Pasword?
+				</Link>
 			</div>
 
 			<div className="rounded-sm border border-gray-300 w-72 p-8 text-sm text-center mt-4">

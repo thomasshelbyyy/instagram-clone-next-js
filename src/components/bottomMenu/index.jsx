@@ -12,14 +12,14 @@ import {
 	PlayCircleIcon,
 	PlusCircleIcon,
 } from "@heroicons/react/24/outline";
-import { brookeCagle } from "../../assets/profile/images";
 import { useState } from "react";
 import CreatePost from "../createPost";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import noProfile from "@/assets/profile/no-profile.png";
 
-const BottomMenu = () => {
+const BottomMenu = ({ loggedInUser }) => {
 	const [createPostActive, setCreatePostActive] = useState(false);
 	const pathname = usePathname();
 	return (
@@ -51,11 +51,11 @@ const BottomMenu = () => {
 					<ChatOutline className="w-8 h-8" />
 				)}
 			</Link>
-			<Link href="/profile">
+			<Link href={`/${loggedInUser.username}`}>
 				<Image
 					width={100}
 					height={100}
-					src={brookeCagle}
+					src={loggedInUser.profilePictureUrl || noProfile}
 					className="w-8 h-8 rounded-full"
 					alt=""
 				/>

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { phillipDeus } from "../../assets/profile/images";
+import noProfile from "@/assets/profile/no-profile.png";
 
-const ProfileAvatar = ({ hasNewStory }) => {
+const ProfileAvatar = ({ hasNewStory, profilePictureUrl }) => {
 	return (
 		<button className="flex flex-col items-center w-1/5">
 			<div
@@ -14,7 +15,7 @@ const ProfileAvatar = ({ hasNewStory }) => {
 				<Image
 					width={100}
 					height={100}
-					src={phillipDeus}
+					src={profilePictureUrl || noProfile}
 					className="w-full aspect-square rounded-full border-2 border-black"
 					alt="profile avatar"
 				/>

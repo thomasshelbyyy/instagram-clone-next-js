@@ -9,6 +9,8 @@ export async function GET(req) {
         return NextResponse.json({message: "user not found"}, {status: 404})
     }
 
+    console.log({username})
+
     try {
         const user = await getUser(username)
         if(user.status) {

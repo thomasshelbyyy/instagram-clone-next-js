@@ -1,6 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcryptjs from "bcryptjs"
 import { login } from "../firebase/service"
+import { FirestoreAdapter } from "@auth/firebase-adapter"
+import { firestore } from "../firebase/init"
 
 const authOptions = {
     session: {
@@ -33,6 +35,7 @@ const authOptions = {
             }
         })
     ],
+    adapter: FirestoreAdapter(firestore),
     callbacks: {
         async jwt({token, account, profile, user}) {
             if(account?.provider === "credentials") {
