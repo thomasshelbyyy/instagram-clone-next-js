@@ -11,16 +11,14 @@ export const metadata = {
 };
 
 const fetchUser = async (username) => {
+	const baseUrl = process.env.NEXT_BASE_URL;
 	try {
-		const res = await fetch(
-			`http://localhost:3000/api/user?username=${username}`,
-			{
-				headers: {
-					"Cache-Control": "no-cache",
-				},
-				cache: "no-store",
-			}
-		);
+		const res = await fetch(`${baseUrl}/api/user?username=${username}`, {
+			headers: {
+				"Cache-Control": "no-cache",
+			},
+			cache: "no-store",
+		});
 		const result = await res.json();
 		return result.data;
 	} catch (error) {
