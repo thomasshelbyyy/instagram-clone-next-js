@@ -13,7 +13,13 @@ export const metadata = {
 const fetchUser = async (username) => {
 	try {
 		const res = await fetch(
-			`http://localhost:3000/api/user?username=${username}`
+			`http://localhost:3000/api/user?username=${username}`,
+			{
+				headers: {
+					"Cache-Control": "no-cache",
+				},
+				cache: "no-store",
+			}
 		);
 		const result = await res.json();
 		return result.data;
@@ -25,7 +31,8 @@ const fetchUser = async (username) => {
 const Page = async ({ params }) => {
 	const user = await fetchUser(params.username);
 	const session = await getServerSession(authOptions);
-	console.log({ user });
+	const profilePictureUrl = user.profilePictureUrl;
+	console.log({ pagePictureUrl: profilePictureUrl });
 	return (
 		<>
 			<div className="w-full flex justify-between px-3 py-2 border-b border-gray-600 fixed top-0 left-0 bg-black md:hidden">
@@ -42,7 +49,9 @@ const Page = async ({ params }) => {
 					<div className="flex gap-8 md:gap-16 px-6 md:px-10 lg:px-12 items-center">
 						<ProfileAvatar
 							hasNewStory={true}
-							profilePictureUrl={user.profilePictureUrl}
+							profilePictureUrl={profilePictureUrl}
+							isLoggedInUser={user.username === session.username}
+							userId={user.id}
 						/>
 						<div>
 							<ProfileCTA

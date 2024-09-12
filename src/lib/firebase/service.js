@@ -1,7 +1,8 @@
 // const { query, collection, where, getDocs } = require("firebase/firestore");
-import {firestore, auth} from "@/lib/firebase/init"
-import { addDoc, collection, doc, getDoc, getDocs, query, Timestamp, where } from "firebase/firestore"
+import {firestore, auth, storage} from "@/lib/firebase/init"
+import { addDoc, collection, doc, getDoc, getDocs, query, Timestamp, updateDoc, where } from "firebase/firestore"
 import bcryptjs from "bcryptjs"
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 
 export async function register(data) {
     const emailQuery = query(collection(firestore, "email"), where("email", "==", data.email))
@@ -93,5 +94,47 @@ export async function getUserByEmail(email) {
         return {status: true, data: user[0]}
     } else {
         return {status: false}
+    }
+}
+
+export async function uploadImage(userId, file) {
+    try {
+        const storageRef = ref(storage, `/profilePicture/${userId}/$${file.name}`)
+        await uploadBytes(storageRef, file)
+        return {status: true}
+    } catch(error) {
+        return {status: false, message: error}
+    }
+}
+
+export async function updateProfilePicture(userId, file) {
+    try {
+        const storageRef = ref(storage, `/profilePicture/${userId}/${file.name}`)
+        await uploadBytes(storageRef, file)
+    
+        const downloadURL = await getDownloadURL(storageRef)
+    
+        const userDocRef = doc(firestore, "users", userId)
+    
+        await updateDoc(userDocRef, {
+            profilePictureUrl: downloadURL
+        })
+        return {status: true, message: "profile picture changed"}
+    } catch(error) {
+        return {status: false, message: error.message}
+    }
+}
+
+export async function removeProfilePicture(userId) {
+    try {
+        const userDocRef = doc(firestore, "users", userId)
+
+        await updateDoc(userDocRef, {
+            profilePictureUrl: null
+        })  
+
+        return {status: true, message: "Profile removed"}
+    } catch(error) {
+        return {status: false, message: error.message}
     }
 }

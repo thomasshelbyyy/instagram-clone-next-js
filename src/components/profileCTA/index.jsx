@@ -47,9 +47,9 @@ const ProfileCTA = ({
 					</div>
 				) : (
 					<div className="flex gap-3 text-xs md:text-sm lg:gap-4 lg:ml-auto">
-						<button className="flex gap-1 items-center px-3 py-1 bg-gray-600 cursor-pointer rounded-md">
-							Following
-							<ChevronDownIcon className="w-5 h-5" />
+						<button className="flex gap-1 items-center px-6 py-1 cursor-pointer rounded-md bg-blue-500">
+							Follow
+							{/* <ChevronDownIcon className="w-5 h-5" /> */}
 						</button>
 
 						<button className="px-3 py-1 bg-gray-600 cursor-pointer rounded-md">
