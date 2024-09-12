@@ -32,7 +32,6 @@ const Page = async ({ params }) => {
 	const user = await fetchUser(params.username);
 	const session = await getServerSession(authOptions);
 	const profilePictureUrl = user.profilePictureUrl;
-	console.log({ pagePictureUrl: profilePictureUrl });
 	return (
 		<>
 			<div className="w-full flex justify-between px-3 py-2 border-b border-gray-600 fixed top-0 left-0 bg-black md:hidden">
@@ -40,7 +39,7 @@ const Page = async ({ params }) => {
 					<ChevronLeftIcon className="w-6 h-6 text-white" />
 				</button>
 
-				<span className="text-sm font-semibold">username.name</span>
+				<span className="text-sm font-semibold">{user.username}</span>
 
 				<div className="w-8"></div>
 			</div>
