@@ -1,6 +1,6 @@
 // const { query, collection, where, getDocs } = require("firebase/firestore");
 import {firestore, auth, storage} from "@/lib/firebase/init"
-import { addDoc, collection, doc, getDoc, getDocs, query, Timestamp, updateDoc, where } from "firebase/firestore"
+import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, increment, query, Timestamp, updateDoc, where } from "firebase/firestore"
 import bcryptjs from "bcryptjs"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 
@@ -135,6 +135,64 @@ export async function removeProfilePicture(userId) {
 
         return {status: true, message: "Profile removed"}
     } catch(error) {
+        return {status: false, message: error.message}
+    }
+}
+
+export async function followUser(userData, userToFollow) {
+    try {
+        const userDocRef = doc(firestore, "users", userData.userId)
+        const userToFollowRef = doc(firestore, "users", userToFollow.userId)
+
+        await updateDoc(userDocRef, {
+            following: arrayUnion(userToFollow),
+            followingCount: increment(1)
+        })
+
+        await updateDoc(userToFollowRef, {
+            followers: arrayUnion(userData),
+            followersCount: increment(1)
+        })
+
+        return {status: true}
+    } catch(error) {
+        return {status: false, message: error.message}
+    }
+}
+
+export async function unfollowUser(userId, userToUnfollowId) {
+    try {
+        const userDocRef = doc(firestore, "users", userId);
+        const userToUnfollowDocRef = doc(firestore, "users", userToUnfollowId);
+
+        const userDocSnapshot = await getDoc(userDocRef)
+        const userToUnfollowSnapshot = await getDoc(userToUnfollowDocRef)
+
+        if(userDocSnapshot.exists() && userToUnfollowSnapshot.exists()) {
+            const currentFollowing = userDocSnapshot.data().following || [];
+            const currentFollowers = userToUnfollowSnapshot.data().followers || [];
+
+            const updatedFollowing = currentFollowing.filter(
+                (follow) => follow.userId !== userToUnfollowId
+            );
+
+            const updatedFollowers = currentFollowers.filter(
+                (follower) => follower.userId !== userId
+            );
+
+            await updateDoc(userDocRef, {
+                following: updatedFollowing,
+                followingCount: increment(-1),
+            });
+
+            await updateDoc(userToUnfollowDocRef, {
+                followers: updatedFollowers,
+                followersCount: increment(-1),
+            });
+
+            return {status: true}
+        }
+    } catch (error) {
         return {status: false, message: error.message}
     }
 }

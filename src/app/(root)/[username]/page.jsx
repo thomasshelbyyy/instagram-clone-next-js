@@ -29,6 +29,7 @@ const fetchUser = async (username) => {
 const Page = async ({ params }) => {
 	const user = await fetchUser(params.username);
 	const session = await getServerSession(authOptions);
+	const loggedInUser = await fetchUser(session.username);
 	const profilePictureUrl = user.profilePictureUrl;
 	return (
 		<>
@@ -51,12 +52,7 @@ const Page = async ({ params }) => {
 							userId={user.id}
 						/>
 						<div>
-							<ProfileCTA
-								username={user.username}
-								followers={user.followersCount}
-								following={user.followingCount}
-								loggedInUser={session.username}
-							/>
+							<ProfileCTA user={user} loggedInUser={loggedInUser} />
 							<div className="hidden md:flex">
 								<UserBio bio={user.bio} fullname={user.fullname} />
 							</div>

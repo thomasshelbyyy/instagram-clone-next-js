@@ -9,26 +9,78 @@ import {
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import Modal from "../core/modal";
+import { useRouter } from "next/navigation";
 
-const ProfileCTA = ({
-	username,
-	followers,
-	following,
-	posts,
-	loggedInUser,
-}) => {
+const ProfileCTA = ({ user, loggedInUser }) => {
+	const router = useRouter();
 	const [settingActive, setSettingActive] = useState(false);
+	const [isFollowing, setIsFollowing] = useState(
+		user.followers.find((obj) => obj.username === loggedInUser.username)
+	);
+	const [followersCount, setFollowersCount] = useState(user.followersCount);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleFollow = async () => {
+		const previousFollowingStatus = isFollowing;
+		setIsFollowing(!isFollowing);
+		setFollowersCount((prev) => (isFollowing ? prev - 1 : prev + 1));
+		setIsLoading(true);
+		try {
+			let res;
+
+			if (isFollowing) {
+				res = await fetch("/api/user/unfollow", {
+					method: "POST",
+					body: JSON.stringify({
+						userId: loggedInUser.id,
+						userToUnfollowId: user.id,
+					}),
+				});
+			} else {
+				res = await fetch("/api/user/follow", {
+					method: "POST",
+					body: JSON.stringify({
+						userData: {
+							userId: loggedInUser.id,
+							profilePictureUrl: loggedInUser.profilePictureUrl,
+							username: loggedInUser.username,
+						},
+						userToFollow: {
+							userId: user.id,
+							profilePictureUrl: user.profilePictureUrl,
+							username: user.username,
+						},
+					}),
+				});
+			}
+
+			const result = await res.json();
+			if (result.status === 200) {
+				router.refresh();
+			} else {
+				console.log(result.message);
+			}
+		} catch (error) {
+			console.log(error);
+			setIsFollowing(previousFollowingStatus);
+			setFollowersCount(user.followersCount);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 	return (
 		<div>
 			<div className="flex flex-col lg:flex-row lg:items-center pb-3 gap-3">
 				<div className="flex justify-between items-center lg:gap-4">
-					<p className="text-lg lg:text-xl font-semibold pr-4">{username}</p>
+					<p className="text-lg lg:text-xl font-semibold pr-4">
+						{user.username}
+					</p>
 					<button className="cursor-pointer lg:hidden">
 						<EllipsisHorizontalIcon className="w-5 h-5" />
 					</button>
 				</div>
 
-				{loggedInUser === username ? (
+				{loggedInUser.username === user.username ? (
 					<div className="flex gap-3 text-xs md:text-sm lg:gap-4 lg:ml-auto">
 						<button className="flex gap-1 items-center px-3 py-1 bg-gray-600 cursor-pointer rounded-md">
 							Edit Profile
@@ -47,8 +99,14 @@ const ProfileCTA = ({
 					</div>
 				) : (
 					<div className="flex gap-3 text-xs md:text-sm lg:gap-4 lg:ml-auto">
-						<button className="flex gap-1 items-center px-6 py-1 cursor-pointer rounded-md bg-blue-500">
-							Follow
+						<button
+							onClick={handleFollow}
+							disabled={isLoading}
+							className={`flex gap-1 items-center py-1 cursor-pointer rounded-md ${
+								isFollowing ? "bg-gray-600 px-3" : "bg-blue-500 px-6"
+							}`}
+						>
+							{isFollowing ? "Following" : "Follow"}
 							{/* <ChevronDownIcon className="w-5 h-5" /> */}
 						</button>
 
@@ -72,10 +130,11 @@ const ProfileCTA = ({
 					<span className="font-semibold">1,234 </span> Posts
 				</span>
 				<span>
-					<span className="font-semibold">{followers} </span> followers
+					<span className="font-semibold">{followersCount} </span> followers
 				</span>
 				<span>
-					<span className="font-semibold">{following} </span> following
+					<span className="font-semibold">{user.followingCount} </span>{" "}
+					following
 				</span>
 			</div>
 
