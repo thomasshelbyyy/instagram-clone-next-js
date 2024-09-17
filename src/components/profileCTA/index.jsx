@@ -10,6 +10,7 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import Modal from "../core/modal";
 import { useRouter } from "next/navigation";
+import FollowingComponent from "../followingComponent";
 
 const ProfileCTA = ({ user, loggedInUser }) => {
 	const router = useRouter();
@@ -19,6 +20,13 @@ const ProfileCTA = ({ user, loggedInUser }) => {
 	);
 	const [followersCount, setFollowersCount] = useState(user.followersCount);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isFollowingModalActive, setIsFollowingModalActive] = useState(false);
+	const [activeTab, setActiveTab] = useState("following");
+
+	const handleFollowingClick = (selectedTab) => {
+		setActiveTab(selectedTab);
+		setIsFollowingModalActive(true);
+	};
 
 	const handleFollow = async () => {
 		const previousFollowingStatus = isFollowing;
@@ -75,9 +83,18 @@ const ProfileCTA = ({ user, loggedInUser }) => {
 					<p className="text-lg lg:text-xl font-semibold pr-4">
 						{user.username}
 					</p>
-					<button className="cursor-pointer lg:hidden">
-						<EllipsisHorizontalIcon className="w-5 h-5" />
-					</button>
+					{loggedInUser.username === user.username ? (
+						<button
+							onClick={() => setSettingActive(true)}
+							className="cursor-pointer lg:hidden"
+						>
+							<CogIcon className="w-5 h-5" />
+						</button>
+					) : (
+						<button className="cursor-pointer lg:hidden">
+							<EllipsisHorizontalIcon className="w-5 h-5" />
+						</button>
+					)}
 				</div>
 
 				{loggedInUser.username === user.username ? (
@@ -129,13 +146,13 @@ const ProfileCTA = ({ user, loggedInUser }) => {
 				<span>
 					<span className="font-semibold">1,234 </span> Posts
 				</span>
-				<span>
+				<button onClick={() => handleFollowingClick("followers")}>
 					<span className="font-semibold">{followersCount} </span> followers
-				</span>
-				<span>
+				</button>
+				<button onClick={() => handleFollowingClick("following")}>
 					<span className="font-semibold">{user.followingCount} </span>{" "}
 					following
-				</span>
+				</button>
 			</div>
 
 			{settingActive && (
@@ -178,6 +195,19 @@ const ProfileCTA = ({ user, loggedInUser }) => {
 							Cancel
 						</button>
 					</div>
+				</Modal>
+			)}
+
+			{isFollowingModalActive && (
+				<Modal>
+					<FollowingComponent
+						setIsModalActive={setIsFollowingModalActive}
+						selectedTab={activeTab}
+						setSelectedTab={setActiveTab}
+						followers={user.followers}
+						followings={user.following}
+						loggedInUser={loggedInUser}
+					/>
 				</Modal>
 			)}
 		</div>

@@ -6,6 +6,7 @@ import {
 	ExclamationCircleIcon,
 	SunIcon,
 } from "@heroicons/react/24/outline";
+import { signOut } from "next-auth/react";
 
 const MoreMenu = () => {
 	return (
@@ -62,7 +63,10 @@ const MoreMenu = () => {
 			</li>
 			<div className="w-full h-[1px] bg-gray-600"></div>
 			<li className="w-full">
-				<button className="hover:bg-gray-800 w-full text-left p-4 rounded-b-lg">
+				<button
+					onClick={() => signOut()}
+					className="hover:bg-gray-800 w-full text-left p-4 rounded-b-lg"
+				>
 					Logout
 				</button>
 			</li>
