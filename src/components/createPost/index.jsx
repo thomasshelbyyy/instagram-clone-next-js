@@ -1,11 +1,18 @@
 "use client";
 
 import { XMarkIcon } from "@heroicons/react/16/solid";
-import illustration from "../../assets/picture-illustration.svg";
-import { useEffect } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import ImageSelector from "./ImageSelector";
+import ImageCropper from "./ImageCropper";
+import CreateCaption from "./createCaption";
+import { FadeLoader } from "react-spinners";
 
-const CreatePost = ({ setVisible }) => {
+const CreatePost = ({ setVisible, loggedInUser }) => {
+	const [currentStep, setCurrentStep] = useState(1);
+	const [image, setImage] = useState(null);
+	const [croppedImage, setCroppedImage] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
+
 	useEffect(() => {
 		const handleKeyUp = (event) => {
 			if (event.key === "Escape") {
@@ -16,6 +23,7 @@ const CreatePost = ({ setVisible }) => {
 
 		return () => document.removeEventListener("keyup", handleKeyUp);
 	}, [setVisible]);
+
 	return (
 		<div className="fixed w-screen h-screen top-0 left-0 bg-black/40 z-50 pt-8 md:pt-0">
 			<div className="w-full h-full relative flex justify-center items-center">
@@ -26,25 +34,41 @@ const CreatePost = ({ setVisible }) => {
 					<XMarkIcon className="w-7 h-7 text-white" />
 				</button>
 
-				<div className="w-96 h-[450px] black rounded-lg bg-gray-900 text-white flex flex-col">
+				<div className="min-h-[450px] black rounded-lg bg-gray-900 text-white flex flex-col relative">
 					<span className="flex justify-center font-semibold py-2">
 						Create new post
 					</span>
 					<div className="w-full h-[1px] bg-gray-700"></div>
 
-					<div className="flex flex-col justify-center items-center flex-1">
-						<Image
-							width={100}
-							height={100}
-							src={illustration}
-							alt=""
-							className="w-28 h-auto"
+					{!image && (
+						<ImageSelector
+							setImage={setImage}
+							setCurrentStep={setCurrentStep}
 						/>
-						<div className="text-xl pt-2">Drag photos or videos here</div>
-						<button className="bg-blue-700 rounded-md font-medium px-3 py-2 text-sm mt-6">
-							select from computer
-						</button>
-					</div>
+					)}
+
+					{image && currentStep === 2 && (
+						<ImageCropper
+							image={image}
+							setCroppedImage={setCroppedImage}
+							setCurrentStep={setCurrentStep}
+						/>
+					)}
+					{image && currentStep === 3 && (
+						<CreateCaption
+							image={croppedImage}
+							loggedInUser={loggedInUser}
+							setIsLoading={setIsLoading}
+							isLoading={isLoading}
+							setVisible={setVisible}
+						/>
+					)}
+
+					{isLoading && (
+						<div className="absolute w-full h-full flex justify-center items-center bg-black/40">
+							<FadeLoader size={80} />
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

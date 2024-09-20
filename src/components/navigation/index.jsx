@@ -262,7 +262,12 @@ const Navigation = ({ session, loggedInUser }) => {
 				isVisible={notificationPanelVisible}
 				onClose={handleCloseNotificationPanel}
 			/>
-			{createPostActive && <CreatePost setVisible={setCreatePostActive} />}
+			{createPostActive && (
+				<CreatePost
+					setVisible={setCreatePostActive}
+					loggedInUser={loggedInUser}
+				/>
+			)}
 		</>
 	);
 };

@@ -99,7 +99,7 @@ export async function getUserByEmail(email) {
 
 export async function uploadImage(userId, file) {
     try {
-        const storageRef = ref(storage, `/profilePicture/${userId}/$${file.name}`)
+        const storageRef = ref(storage, `/profilePicture/${userId}/${file.name}`)
         await uploadBytes(storageRef, file)
         return {status: true}
     } catch(error) {
@@ -193,6 +193,30 @@ export async function unfollowUser(userId, userToUnfollowId) {
             return {status: true}
         }
     } catch (error) {
+        return {status: false, message: error.message}
+    }
+}
+
+export async function createPost(username, profilePictureUrl, image, caption) {
+    try  {
+        const storageRef = ref(storage, `/post/${username}/${image.name}`)
+        await uploadBytes(storageRef, image)
+
+        const downloadUrl = await getDownloadURL(storageRef)
+
+        await addDoc(collection(firestore, "posts"), {
+            username, 
+            profilePictureUrl, 
+            mediaUrl: downloadUrl, 
+            caption, 
+            createdAt: Timestamp.now(), 
+            isEdited: false,
+            likesCount: 0,
+            commentsCount: 0
+        })
+
+        return {status: true}
+    } catch(error) {
         return {status: false, message: error.message}
     }
 }

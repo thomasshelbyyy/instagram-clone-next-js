@@ -9,7 +9,6 @@ export async function POST(req) {
     const userId = formData.get("userId")
     const file = formData.get("file")
 
-    console.log({userId, file})
     try {
         
         const res = await updateProfilePicture(userId, file)

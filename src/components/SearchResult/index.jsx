@@ -84,15 +84,17 @@ const SearchResult = ({
 				</div>
 			</div>
 
-			<button
-				onClick={handleFollow}
-				disabled={isLoading}
-				className={`px-2 py-1 h-fit rounded-md  ${
-					isFollowing ? "bg-gray-500" : "bg-blue-500"
-				} font-semibold text-sm`}
-			>
-				{isFollowing ? "Following" : "Follow"}
-			</button>
+			{loggedInUser.id !== id && (
+				<button
+					onClick={handleFollow}
+					disabled={isLoading}
+					className={`px-2 py-1 h-fit rounded-md  ${
+						isFollowing ? "bg-gray-500" : "bg-blue-500"
+					} font-semibold text-sm`}
+				>
+					{isFollowing ? "Following" : "Follow"}
+				</button>
+			)}
 		</div>
 	);
 };
