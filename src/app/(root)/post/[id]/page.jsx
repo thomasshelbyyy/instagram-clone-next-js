@@ -2,7 +2,18 @@ import PostDetail from "@/components/core/PostDetail";
 import PostPreview from "@/components/postPreview";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 
-const PostDetailPage = () => {
+const getPost = async (id) => {
+	const baseUrl = process.env.NEXT_BASE_URL;
+	const res = await fetch(`${baseUrl}/api/post/get?post-id=${id}`);
+
+	const data = await res.json();
+	return data;
+};
+
+const PostDetailPage = async ({ params }) => {
+	const res = await getPost(params.id);
+	const post = res.data;
+	console.log({ post });
 	return (
 		<div className="md:px-12 pt-12 w-full bg-black pb-12">
 			<div className="fixed top-0 left-0 w-full flex md:hidden bg-black justify-between items-center px-3 py-2">
@@ -12,7 +23,16 @@ const PostDetailPage = () => {
 				<div className=" font-semibold">username post</div>
 				<div className="w-2"></div>
 			</div>
-			<PostDetail />
+			<PostDetail
+				caption={post.caption}
+				commentsCount={post.commentsCount}
+				createdAt={post.createdAt}
+				isEdited={post.isEdited}
+				likesCount={post.likesCount}
+				mediaUrl={post.mediaUrl}
+				profilePictureUrl={post.profilePictureUrl}
+				username={post.username}
+			/>
 
 			<div className="w-full h-[1px] bg-gray-400 mt-20 mb-6"></div>
 			<div className="font-semibold text-sm p-3">More from this user</div>

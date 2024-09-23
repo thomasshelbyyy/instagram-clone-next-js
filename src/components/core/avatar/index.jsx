@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { brookeCagle } from "@/assets/profile/images";
+import noProfile from "@/assets/profile/no-profile.png";
 
-const Avatar = ({ hasNewStory }) => {
+const Avatar = ({ hasNewStory, profilePictureUrl }) => {
+	const imageSrc = profilePictureUrl === "null" ? noProfile : profilePictureUrl;
 	return (
 		<div
 			className={`flex items-center justify-center rounded-full p-[3px] ${
@@ -13,7 +14,7 @@ const Avatar = ({ hasNewStory }) => {
 			<Image
 				width={100}
 				height={100}
-				src={brookeCagle}
+				src={imageSrc}
 				alt=""
 				className="w-8 h-8 rounded-full border-2 border-white"
 			/>

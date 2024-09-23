@@ -262,3 +262,23 @@ export async function getPostById(id) {
         return {status: false, statusCode: 400, message: error.message}
     }
 }
+
+export function timeAgo(firebaseTimestamp) {
+	// Mengonversi timestamp Firebase ke milidetik
+	const timestampInMillis =
+		firebaseTimestamp.seconds * 1000 + firebaseTimestamp.nanoseconds / 1000000;
+	const now = Date.now(); // waktu saat ini dalam milidetik
+	const differenceInSeconds = (now - timestampInMillis) / 1000; // menghitung selisih waktu dalam detik
+
+	if (differenceInSeconds < 60) {
+		return `${Math.floor(differenceInSeconds)}s ago`; // jika kurang dari 60 detik, tampilkan dalam detik
+	} else if (differenceInSeconds < 3600) {
+		return `${Math.floor(differenceInSeconds / 60)}m ago`; // jika kurang dari 60 menit, tampilkan dalam menit
+	} else if (differenceInSeconds < 86400) {
+		return `${Math.floor(differenceInSeconds / 3600)}h ago`; // jika kurang dari 24 jam, tampilkan dalam jam
+	} else if (differenceInSeconds < 604800) {
+		return `${Math.floor(differenceInSeconds / 86400)}d ago`; // jika kurang dari 7 hari, tampilkan dalam hari
+	} else {
+		return `${Math.floor(differenceInSeconds / 604800)}w ago`; // jika lebih dari 7 hari, tampilkan dalam minggu
+	}
+}
