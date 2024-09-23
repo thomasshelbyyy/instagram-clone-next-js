@@ -8,7 +8,7 @@ import { getUser } from "@/lib/firebase/service";
 export default async function MainLayout({ children }) {
 	const session = await getServerSession(authOptions);
 	const res = await fetch(
-		`${process.env.NEXT_PUBLIC_BASE_URL}/api/user?username=${session.username}`
+		`${process.env.NEXT_BASE_URL}/api/user?username=${session.username}`
 	);
 
 	const response = await res.json();

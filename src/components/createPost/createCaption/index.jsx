@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CreateCaption = ({
 	image,
@@ -14,11 +16,15 @@ const CreateCaption = ({
 }) => {
 	const [caption, setCaption] = useState("");
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [imageSrc, setImageSrc] = useState(URL.createObjectURL(image));
 	const textareaRef = useRef(null);
 
 	const handleEmojiClick = (emoji) => {
 		setCaption(caption + emoji.native);
 	};
+	useEffect(() => {
+		setImageSrc(URL.createObjectURL(image));
+	}, [image]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -29,6 +35,7 @@ const CreateCaption = ({
 			formData.append("profilePictureUrl", loggedInUser.profilePictureUrl);
 			formData.append("image", image);
 			formData.append("caption", caption);
+			formData.append("userId", loggedInUser.id);
 
 			const response = await fetch("/api/post/add", {
 				method: "POST",
@@ -38,8 +45,12 @@ const CreateCaption = ({
 			const result = await response.json();
 
 			if (result.status === 200) {
+				toast.success("Post success", {
+					position: "top-right",
+				});
 				setVisible(false);
 			} else {
+				toast.error("failed to post");
 				console.log("upload post gagal");
 			}
 		} catch (error) {
@@ -66,7 +77,7 @@ const CreateCaption = ({
 		<form onSubmit={handleSubmit}>
 			<div className=" flex flex-col md:flex-row">
 				<Image
-					src={image}
+					src={imageSrc}
 					alt="user image"
 					width={100}
 					height={100}
@@ -79,7 +90,7 @@ const CreateCaption = ({
 						value={caption}
 						onChange={(e) => setCaption(e.target.value)}
 						onInput={handleInput}
-						className="bg-transparent w-full focus:outline-none border border-gray-200 rounded-md resize-none overflow-hidden"
+						className="bg-transparent w-full focus:outline-none border border-gray-200 rounded-md resize-none overflow-hidden p-4"
 						placeholder="write caption..."
 					></textarea>
 					<button

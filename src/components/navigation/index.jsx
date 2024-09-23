@@ -33,7 +33,6 @@ const satisfy = Satisfy({
 });
 
 const Navigation = ({ session, loggedInUser }) => {
-	console.log(session);
 	const [smallNavigation, setSmallNavigation] = useState(false);
 	const [isSearchPanelVisible, setSearchPanelVisible] = useState(false);
 	const [notificationPanelVisible, setNotificationPanelVisible] =

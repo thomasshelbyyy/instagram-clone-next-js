@@ -92,16 +92,19 @@ export const createImage = (url) =>
       pixelCrop.height
     )
   
-    // As Base64 string
-    // return croppedCanvas.toDataURL('image/jpeg');
-  
-    // As a blob
+    // Convert the canvas to a Blob and then to a File
     return new Promise((resolve, reject) => {
-      croppedCanvas.toBlob((file) => {
-        resolve(URL.createObjectURL(file))
+      croppedCanvas.toBlob((blob) => {
+        if (!blob) {
+          return reject(new Error('Canvas is empty'))
+        }
+        // Create a File from the Blob and give it a name
+        const file = new File([blob], "cropped_image.png", { type: blob.type })
+        resolve(file)
       }, 'image/png')
     })
   }
+  
   
   export async function getRotatedImage(imageSrc, rotation = 0) {
     const image = await createImage(imageSrc)

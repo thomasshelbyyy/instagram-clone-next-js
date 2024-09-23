@@ -66,7 +66,7 @@ const CreatePost = ({ setVisible, loggedInUser }) => {
 
 					{isLoading && (
 						<div className="absolute w-full h-full flex justify-center items-center bg-black/40">
-							<FadeLoader size={80} />
+							<FadeLoader size={80} color="white" />
 						</div>
 					)}
 				</div>

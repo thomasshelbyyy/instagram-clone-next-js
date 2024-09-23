@@ -7,9 +7,10 @@ export async function POST(req) {
     const profilePictureUrl = formData.get("profilePictureUrl")
     const image = formData.get("image")
     const caption = formData.get("caption")
+    const userId = formData.get("userId")
 
     try {
-        const res = await createPost(username, profilePictureUrl, image, caption)
+        const res = await createPost(userId, username, profilePictureUrl, image, caption)
         if(res.status) {
             return NextResponse.json({status: 200})
         } else {

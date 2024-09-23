@@ -3,6 +3,7 @@ import {firestore, auth, storage} from "@/lib/firebase/init"
 import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, increment, query, Timestamp, updateDoc, where } from "firebase/firestore"
 import bcryptjs from "bcryptjs"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
+import { v4 as uuid } from "uuid"
 
 export async function register(data) {
     const emailQuery = query(collection(firestore, "email"), where("email", "==", data.email))
@@ -34,6 +35,7 @@ export async function register(data) {
     user.joinDate = Timestamp.now()
     user.followersCount = 0
     user.followingCount = 0
+    user.postCount = 0
     user.followers = []
     user.following = []
     user.privacySettings = {
@@ -197,10 +199,13 @@ export async function unfollowUser(userId, userToUnfollowId) {
     }
 }
 
-export async function createPost(username, profilePictureUrl, image, caption) {
+export async function createPost(userId, username, profilePictureUrl, image, caption) {
     try  {
-        const storageRef = ref(storage, `/post/${username}/${image.name}`)
+        const uniqueFileName = `${uuid()}_${image.name}`
+        const storageRef = ref(storage, `/post/${username}/${uniqueFileName}`)
         await uploadBytes(storageRef, image)
+
+        const userRef = doc(firestore, "users", userId)
 
         const downloadUrl = await getDownloadURL(storageRef)
 
@@ -215,8 +220,45 @@ export async function createPost(username, profilePictureUrl, image, caption) {
             commentsCount: 0
         })
 
+        await updateDoc(userRef, {
+            postCount: increment(1)
+        })
+
         return {status: true}
     } catch(error) {
         return {status: false, message: error.message}
+    }
+}
+
+export async function getPosts(username) {
+    try {
+        const q = query(collection(firestore, "posts"), where("username", "==", username))
+        const snapshot = await getDocs(q)
+    
+        if(snapshot.docs.length > 0) {
+            const data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+
+            return  {status: true, data}
+        } else {
+            return {status: false, statusCode: 404, message: "Post not found"}
+        }
+    } catch(error) {
+        return {status: false, statusCode: 400, message: error.message}
+    }
+}
+
+export async function getPostById(id) {
+    try {
+        const snapshot = await getDoc(doc(firestore, "posts", id))
+        if(snapshot.exists()) {
+            return {status: true, statusCode: 200, data: snapshot.data()}
+        } else {
+            return {status: false, statusCode: 404, message: "Post not found"}
+        }
+    } catch(error) {
+        return {status: false, statusCode: 400, message: error.message}
     }
 }

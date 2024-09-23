@@ -26,11 +26,29 @@ const fetchUser = async (username) => {
 	}
 };
 
+const fetchPost = async (username) => {
+	const baseUrl = process.env.NEXT_BASE_URL;
+	try {
+		const res = await fetch(`${baseUrl}/api/post/get?username=${username}`, {
+			headers: {
+				"Cache-Control": "no-cache",
+			},
+			cache: "no-store",
+		});
+		const result = await res.json();
+		return result.data;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 const Page = async ({ params }) => {
 	const user = await fetchUser(params.username);
 	const session = await getServerSession(authOptions);
 	const loggedInUser = await fetchUser(session.username);
+	const posts = await fetchPost(session.username);
 	const profilePictureUrl = user.profilePictureUrl;
+	console.log(posts);
 	return (
 		<>
 			<div className="w-full flex justify-between px-3 py-2 border-b border-gray-600 fixed top-0 left-0 bg-black md:hidden">
@@ -65,19 +83,23 @@ const Page = async ({ params }) => {
 				</div>
 				<div className="flex md:hidden pt-1 border-t border-gray-400 text-white text-sm">
 					<div className="text-center flex-1">
-						<p className="font-semibold">1,234</p>
+						<p className="font-semibold">{loggedInUser.postCount}</p>
 						<p className="text-gray-500">posts</p>
 					</div>
 					<div className="text-center flex-1">
-						<p className="font-semibold">666k</p>
+						<p className="font-semibold">{loggedInUser.followersCount}</p>
 						<p className="text-gray-500">followers</p>
 					</div>
 					<div className="text-center flex-1">
-						<p className="font-semibold">234</p>
+						<p className="font-semibold">{loggedInUser.followingCount}</p>
 						<p className="text-gray-500">following</p>
 					</div>
 				</div>
-				<ProfilePosts />
+				{posts.length > 0 ? (
+					<ProfilePosts posts={posts} />
+				) : (
+					<p>Post not found</p>
+				)}
 			</div>
 		</>
 	);
