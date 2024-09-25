@@ -37,7 +37,7 @@ const PostDetail = ({
 	);
 	const [likesCountState, setLikesCountState] = useState(likesCount);
 
-	console.log({ loggedInUserFromContext: loggedInUser, isLiked });
+	console.log({ loggedInUserFromContext: loggedInUser, isLiked, likes });
 
 	const handleLike = async () => {
 		const currentLikeState = isLiked;

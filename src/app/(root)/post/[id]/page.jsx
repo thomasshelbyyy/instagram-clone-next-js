@@ -4,7 +4,9 @@ import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 
 const getPost = async (id) => {
 	const baseUrl = process.env.NEXT_BASE_URL;
-	const res = await fetch(`${baseUrl}/api/post/get?post-id=${id}`);
+	const res = await fetch(`${baseUrl}/api/post/get?post-id=${id}`, {
+		cache: "no-store",
+	});
 
 	const data = await res.json();
 	return data;
