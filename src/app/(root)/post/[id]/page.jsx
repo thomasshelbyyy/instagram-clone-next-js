@@ -32,16 +32,20 @@ const PostDetailPage = async ({ params }) => {
 				mediaUrl={post.mediaUrl}
 				profilePictureUrl={post.profilePictureUrl}
 				username={post.username}
+				post={post}
+				likes={post.likes}
+				comments={post.comments}
+				postId={post.id}
 			/>
 
 			<div className="w-full h-[1px] bg-gray-400 mt-20 mb-6"></div>
 			<div className="font-semibold text-sm p-3">More from this user</div>
 			<div className="grid grid-cols-3 gap-1">
+				{/* <PostPreview />
 				<PostPreview />
 				<PostPreview />
 				<PostPreview />
-				<PostPreview />
-				<PostPreview />
+				<PostPreview /> */}
 			</div>
 		</div>
 	);

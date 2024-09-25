@@ -1,17 +1,25 @@
+"use client";
+
 import Image from "next/image";
 import Avatar from "../avatar";
-import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
+import {
+	EllipsisHorizontalIcon,
+	HeartIcon as SolidHeart,
+} from "@heroicons/react/16/solid";
 import {
 	BookmarkIcon,
 	ChatBubbleOvalLeftIcon,
 	FaceSmileIcon,
-	HeartIcon,
+	HeartIcon as OutlineHeart,
 	PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { timeAgo } from "@/lib/firebase/service";
+import { useUser } from "@/context/userContext";
+import { useState } from "react";
 
 const PostDetailWModal = ({
+	postId,
 	mediaUrl,
 	caption,
 	commentsCount,
@@ -20,8 +28,50 @@ const PostDetailWModal = ({
 	createdAt,
 	username,
 	isEdited,
+	likes,
+	comments,
 }) => {
 	const time = timeAgo(createdAt);
+	const { loggedInUser } = useUser();
+
+	const [isLiked, setIsLiked] = useState(
+		likes.some((like) => like.userId === loggedInUser.id)
+	);
+	const [likesCountState, setLikesCountState] = useState(likesCount);
+
+	const handleLike = async () => {
+		const currentLikeState = isLiked;
+		const currentLikesCountState = likesCountState; // Menggunakan likesCountState saat ini, bukan likesCount
+		setIsLiked(!isLiked);
+		setLikesCountState(
+			currentLikeState ? likesCountState - 1 : likesCountState + 1
+		); // Menggunakan likesCountState di sini
+
+		try {
+			const formData = {
+				postId,
+				userId: loggedInUser.id,
+				username: loggedInUser.username,
+				profilePictureUrl: loggedInUser.profilePictureUrl,
+			};
+			const res = await fetch("/api/post/like", {
+				method: "POST",
+				body: JSON.stringify(formData),
+			});
+
+			const result = await res.json();
+
+			if (result.status !== 200) {
+				setIsLiked(currentLikeState);
+				setLikesCountState(currentLikesCountState); // Mengembalikan state jika terjadi error
+			}
+		} catch (error) {
+			console.log(error);
+			setIsLiked(currentLikeState); // Mengembalikan state jika error
+			setLikesCountState(currentLikesCountState); // Mengembalikan jumlah like jika error
+		}
+	};
+
 	return (
 		<div className="flex flex-col md:flex-row w-3/4  border border-gray-700 rounded-md h-auto md:h-[600px]">
 			<div className="w-full md:w-7/12 h-full bg-gray-600 rounded-l-md ">
@@ -80,8 +130,12 @@ const PostDetailWModal = ({
 				<div className="px-3 py-2 border-t border-gray-500">
 					<div className="flex justify-between">
 						<div className="flex gap-3">
-							<button>
-								<HeartIcon className="w-6 h-6" />
+							<button onClick={handleLike}>
+								{isLiked ? (
+									<SolidHeart className="w-6 h-6 text-red-500" />
+								) : (
+									<OutlineHeart className="w-6 h-6" />
+								)}
 							</button>
 							<button>
 								<ChatBubbleOvalLeftIcon className="w-6 h-6" />
@@ -97,7 +151,7 @@ const PostDetailWModal = ({
 					</div>
 
 					<button className="font-semibold pt-3 pb-1">
-						{likesCount} likes
+						{likesCountState} likes
 					</button>
 					<div className=" text-gray-400">{time}</div>
 

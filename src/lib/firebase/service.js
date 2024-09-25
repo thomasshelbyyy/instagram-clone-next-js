@@ -1,6 +1,6 @@
 // const { query, collection, where, getDocs } = require("firebase/firestore");
 import {firestore, auth, storage} from "@/lib/firebase/init"
-import { addDoc, arrayUnion, collection, doc, getDoc, getDocs, increment, query, Timestamp, updateDoc, where } from "firebase/firestore"
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, increment, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore"
 import bcryptjs from "bcryptjs"
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import { v4 as uuid } from "uuid"
@@ -209,7 +209,7 @@ export async function createPost(userId, username, profilePictureUrl, image, cap
 
         const downloadUrl = await getDownloadURL(storageRef)
 
-        await addDoc(collection(firestore, "posts"), {
+        const postRef = await addDoc(collection(firestore, "posts"), {
             username, 
             profilePictureUrl, 
             mediaUrl: downloadUrl, 
@@ -218,6 +218,16 @@ export async function createPost(userId, username, profilePictureUrl, image, cap
             isEdited: false,
             likesCount: 0,
             commentsCount: 0
+        })
+
+        const likesSubCollectionRef = doc(collection(postRef, "likes"), "likesData")
+        await setDoc(likesSubCollectionRef, {
+            users: []
+        })
+
+        const commentsSubCollectionRef = doc(collection(postRef, "comments"), "commentsData")
+        await setDoc(commentsSubCollectionRef, {
+            comments: []
         })
 
         await updateDoc(userRef, {
@@ -232,36 +242,81 @@ export async function createPost(userId, username, profilePictureUrl, image, cap
 
 export async function getPosts(username) {
     try {
-        const q = query(collection(firestore, "posts"), where("username", "==", username))
-        const snapshot = await getDocs(q)
+        // Query untuk mengambil post berdasarkan username
+        const q = query(collection(firestore, "posts"), where("username", "==", username));
+        const snapshot = await getDocs(q);
     
-        if(snapshot.docs.length > 0) {
-            const data = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }))
+        if (snapshot.docs.length > 0) {
+            // Ambil setiap post dan subcollection-nya
+            const data = await Promise.all(snapshot.docs.map(async (doc) => {
+                const postData = {
+                    id: doc.id,
+                    ...doc.data()
+                };
 
-            return  {status: true, data}
+                // Ambil subcollection 'likes' dari setiap post
+                const likesSnapshot = await getDocs(collection(doc.ref, "likes"));
+                const likesData = likesSnapshot.docs.map(likeDoc => likeDoc.data());
+
+                // Ambil subcollection 'comments' dari setiap post
+                const commentsSnapshot = await getDocs(collection(doc.ref, "comments"));
+                const commentsData = commentsSnapshot.docs.map(commentDoc => commentDoc.data());
+
+                // Tambahkan 'likes' dan 'comments' ke dalam post
+                return {
+                    ...postData,
+                    likes: likesData,
+                    comments: commentsData
+                };
+            }));
+
+            return { status: true, data };
         } else {
-            return {status: false, statusCode: 404, message: "Post not found"}
+            return { status: false, statusCode: 404, message: "Post not found" };
         }
-    } catch(error) {
-        return {status: false, statusCode: 400, message: error.message}
+    } catch (error) {
+        return { status: false, statusCode: 400, message: error.message };
     }
 }
 
 export async function getPostById(id) {
     try {
-        const snapshot = await getDoc(doc(firestore, "posts", id))
-        if(snapshot.exists()) {
-            return {status: true, statusCode: 200, data: snapshot.data()}
+        // Ambil dokumen post berdasarkan ID
+        const snapshot = await getDoc(doc(firestore, "posts", id));
+        
+        if (snapshot.exists()) {
+            const postData = snapshot.data();
+            postData.id = snapshot.id
+
+            // Ambil data dari dokumen 'likesData'
+            const likesDataRef = doc(snapshot.ref, "likes", "likesData");
+            const likesSnapshot = await getDoc(likesDataRef);
+            const likesData = likesSnapshot.exists() ? likesSnapshot.data() : { users: [] };
+
+            // Ambil data dari dokumen 'commentsData'
+            const commentsDataRef = doc(snapshot.ref, "comments", "commentsData");
+            const commentsSnapshot = await getDoc(commentsDataRef);
+            const commentsData = commentsSnapshot.exists() ? commentsSnapshot.data() : { comments: [] };
+
+            // Return post dengan data subcollection likes dan comments
+            return {
+                status: true,
+                statusCode: 200,
+                data: {
+                    ...postData,
+                    likes: likesData.users, // Ambil array users dari likes
+                    comments: commentsData.comments // Ambil array comments dari comments
+                }
+            };
         } else {
-            return {status: false, statusCode: 404, message: "Post not found"}
+            return { status: false, statusCode: 404, message: "Post not found" };
         }
-    } catch(error) {
-        return {status: false, statusCode: 400, message: error.message}
+    } catch (error) {
+        return { status: false, statusCode: 400, message: error.message };
     }
 }
+
+
 
 export function timeAgo(firebaseTimestamp) {
 	// Mengonversi timestamp Firebase ke milidetik
@@ -281,4 +336,76 @@ export function timeAgo(firebaseTimestamp) {
 	} else {
 		return `${Math.floor(differenceInSeconds / 604800)}w ago`; // jika lebih dari 7 hari, tampilkan dalam minggu
 	}
+}
+
+export async function toggleLike(postId, userId, username, profilePictureUrl) {
+    try {
+
+        const postRef = doc(firestore, "posts", postId);
+        const likeRef = doc(firestore, "posts", postId, "likes", "likesData")
+        const snapshot = await getDoc(likeRef)
+    
+        const postData = {
+            id: snapshot.id,
+            ...snapshot.data()
+        }
+
+        if (snapshot.exists()) {
+
+            // Cek apakah userId sudah ada dalam array users
+            const userIndex = postData.users.findIndex(user => user.userId === userId);
+
+            if (userIndex !== -1) {
+                // Jika like ada, hapus like
+                await updateDoc(likeRef, {
+                    users: arrayRemove({
+                        userId,
+                        username,
+                        profilePictureUrl
+                    })
+                });
+
+                // Kurangi likesCount pada dokumen post
+                await updateDoc(postRef, {
+                    likesCount: increment(-1)
+                });
+
+            } else {
+                // Jika like tidak ada, tambahkan like baru
+                await updateDoc(likeRef, {
+                    users: arrayUnion({
+                        userId,
+                        username,
+                        profilePictureUrl
+                    })
+                });
+
+                // Tambahkan likesCount pada dokumen post
+                await updateDoc(postRef, {
+                    likesCount: increment(1)
+                });
+
+            }
+        } else {
+            // Jika dokumen likesData tidak ada, buat dokumen baru dan tambahkan like
+            await setDoc(likeRef, {
+                users: [{
+                    userId,
+                    username,
+                    profilePictureUrl
+                }]
+            });
+
+            // Tambahkan likesCount pada dokumen post
+            await updateDoc(postRef, {
+                likesCount: increment(1)
+            });
+
+        }
+
+        return { status: true };
+    } catch (error) {
+        // Tangkap error jika ada
+        return { status: false, message: error.message };
+    }
 }

@@ -4,6 +4,7 @@ import Main from "@/components/Main";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/nextAuth/authOptions";
 import { getUser } from "@/lib/firebase/service";
+import { UserProvider } from "@/context/userContext";
 
 export default async function MainLayout({ children }) {
 	const session = await getServerSession(authOptions);
@@ -18,10 +19,10 @@ export default async function MainLayout({ children }) {
 
 	console.log({ session, loggedInUser, user });
 	return (
-		<>
+		<UserProvider value={{ loggedInUser }}>
 			<Navigation loggedInUser={loggedInUser} session={session} />
 			<Main>{children}</Main>
 			<BottomMenu loggedInUser={loggedInUser} />
-		</>
+		</UserProvider>
 	);
 }

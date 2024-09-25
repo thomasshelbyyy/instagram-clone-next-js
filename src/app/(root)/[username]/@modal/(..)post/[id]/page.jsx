@@ -28,6 +28,9 @@ const PostModal = async ({ params }) => {
 				mediaUrl={post.mediaUrl}
 				profilePictureUrl={post.profilePictureUrl}
 				username={post.username}
+				comments={post.comments}
+				likes={post.likes}
+				postId={post.id}
 			/>
 			<button className="fixed top-1/2 right-2 p-1 rounded-full bg-white">
 				<ChevronRightIcon className="w-7 h-7 text-black" />
