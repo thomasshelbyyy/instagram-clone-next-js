@@ -409,3 +409,20 @@ export async function toggleLike(postId, userId, username, profilePictureUrl) {
         return { status: false, message: error.message };
     }
 }
+
+export async function getLikesByPostId(postId) {
+    try {
+        const likesRef = doc(firestore, "posts", postId, "likes", "likesData")
+        const snapshot = await getDoc(likesRef)
+
+        const likesData = {
+            id: snapshot.id,
+            ...snapshot.data()
+        }
+
+        return {status: true, data: likesData.users}
+    } catch(error) {
+        return {status: false, message: error.message}
+    }
+
+}
