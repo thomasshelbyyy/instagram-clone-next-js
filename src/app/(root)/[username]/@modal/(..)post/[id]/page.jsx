@@ -12,6 +12,10 @@ const getPost = async (id) => {
 	return data;
 };
 
+export const metadata = {
+	title: "Instagram | Post Detail",
+};
+
 const PostModal = async ({ params }) => {
 	const res = await getPost(params.id);
 	const post = res.data;

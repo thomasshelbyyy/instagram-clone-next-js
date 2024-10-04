@@ -46,9 +46,9 @@ const Page = async ({ params }) => {
 	const user = await fetchUser(params.username);
 	const session = await getServerSession(authOptions);
 	const loggedInUser = await fetchUser(session.username);
-	const posts = await fetchPost(session.username);
+	const posts = await fetchPost(params.username);
 	const profilePictureUrl = user.profilePictureUrl;
-	console.log(posts);
+	console.log({ posts });
 	return (
 		<>
 			<div className="w-full flex justify-between px-3 py-2 border-b border-gray-600 fixed top-0 left-0 bg-black md:hidden">
@@ -95,11 +95,7 @@ const Page = async ({ params }) => {
 						<p className="text-gray-500">following</p>
 					</div>
 				</div>
-				{posts.length > 0 ? (
-					<ProfilePosts posts={posts} />
-				) : (
-					<p>Post not found</p>
-				)}
+				<ProfilePosts posts={posts} />
 			</div>
 		</>
 	);

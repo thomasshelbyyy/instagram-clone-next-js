@@ -10,6 +10,7 @@ import {
 	BookmarkIcon,
 	ChatBubbleOvalLeftIcon,
 	FaceSmileIcon,
+	HeartIcon,
 	HeartIcon as OutlineHeart,
 	PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
@@ -17,6 +18,9 @@ import { timeAgo } from "@/lib/firebase/service";
 import { useUser } from "@/context/userContext";
 import { useState } from "react";
 import LikesModal from "../likesModal";
+import Comment from "@/components/comment";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const PostDetail = ({
 	postId,
@@ -33,13 +37,16 @@ const PostDetail = ({
 }) => {
 	const time = timeAgo(createdAt);
 	const { loggedInUser } = useUser();
+
+	const router = useRouter();
+
 	const [isLiked, setIsLiked] = useState(
 		likes.some((like) => like.userId === loggedInUser.id)
 	);
 	const [likesCountState, setLikesCountState] = useState(likesCount);
 	const [likesModalActive, setLikesModalActive] = useState(false);
-
-	console.log({ loggedInUserFromContext: loggedInUser, isLiked, likes });
+	const [commentContent, setCommentContent] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleLike = async () => {
 		const currentLikeState = isLiked;
@@ -71,6 +78,35 @@ const PostDetail = ({
 			console.log(error);
 			setIsLiked(currentLikeState); // Mengembalikan state jika error
 			setLikesCountState(currentLikesCountState); // Mengembalikan jumlah like jika error
+		}
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		if (commentContent.length === 0) return;
+		setCommentContent("");
+		setIsLoading(true);
+		try {
+			const res = await fetch("/api/post/comment", {
+				method: "POST",
+				body: JSON.stringify({
+					postId,
+					username: loggedInUser.username,
+					profilePictureUrl: loggedInUser.profilePictureUrl,
+					userId: loggedInUser.id,
+					comment: commentContent,
+				}),
+			});
+
+			const result = await res.json();
+
+			if (result.status === 200) {
+				router.refresh();
+			}
+		} catch (error) {
+			console.log(error.message);
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -119,15 +155,37 @@ const PostDetail = ({
 					</div>
 
 					<div className="flex-1 overflow-y-auto px-3 py-2">
-						<div className="flex gap-2">
+						<div className="flex gap-2 pb-3">
 							<div className="h-10 w-10">
 								<Avatar profilePictureUrl={profilePictureUrl} />
 							</div>
 							<div className="flex-1 text-sm font-medium">
-								<button className="font-semibold">{username}</button>
-								<div>{caption}</div>
+								<div>
+									<span className="pr-2">
+										<Link href={`/${username}`} className="font-semibold">
+											{username}
+										</Link>
+									</span>
+									{caption}
+								</div>
 							</div>
 						</div>
+
+						{comments.length > 0 &&
+							comments.map((comment) => (
+								<Comment
+									comment={comment.comment}
+									createdAt={comment.createdAt}
+									profilePictureUrl={comment.profilePictureUrl}
+									userId={comment.userId}
+									username={comment.username}
+									key={comment.id}
+									likesCount={comment.likesCount}
+									likes={comment.likes}
+									commentId={comment.id}
+									postId={postId}
+								/>
+							))}
 					</div>
 
 					<div className="px-3 py-2 border-t border-gray-500">
@@ -157,21 +215,30 @@ const PostDetail = ({
 							onClick={() => setLikesModalActive(true)}
 							className="font-semibold pt-3 pb-1"
 						>
-							{likesCountState} likes
+							{likesCountState} {likesCountState > 1 ? "likes" : "like"}
 						</button>
 						<div className=" text-gray-400">{time}</div>
 
-						<div className="flex pt-8 gap-2">
+						<form onSubmit={handleSubmit} className="flex pt-8 gap-2">
 							<Avatar profilePictureUrl={profilePictureUrl} />
 							<input
 								type="text"
 								className="flex-1 focus:outline-none bg-transparent text-sm"
 								placeholder="Add a comment..."
+								value={commentContent}
+								onChange={(e) => setCommentContent(e.target.value)}
 							/>
+							<div className="flex gap-1">
+								{commentContent.length > 0 && (
+									<button disabled={isLoading} type="submit">
+										<PaperAirplaneIcon className="w-4 h-4 text-blue-500" />
+									</button>
+								)}
+							</div>
 							<button>
 								<FaceSmileIcon className="w-6 h-6" />
 							</button>
-						</div>
+						</form>
 					</div>
 				</div>
 			</div>

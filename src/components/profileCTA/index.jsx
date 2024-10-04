@@ -144,7 +144,7 @@ const ProfileCTA = ({ user, loggedInUser }) => {
 
 			<div className="hidden md:flex gap-5">
 				<span>
-					<span className="font-semibold">{loggedInUser.postCount} </span> Posts
+					<span className="font-semibold">{user.postCount} </span> Posts
 				</span>
 				<button onClick={() => handleFollowingClick("followers")}>
 					<span className="font-semibold">{followersCount} </span> followers

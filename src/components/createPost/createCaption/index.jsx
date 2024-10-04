@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
+// import data from "@emoji-mart/data";
+// import Picker from "@emoji-mart/react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -15,19 +15,20 @@ const CreateCaption = ({
 	setVisible,
 }) => {
 	const [caption, setCaption] = useState("");
-	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	// const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const [imageSrc, setImageSrc] = useState(URL.createObjectURL(image));
 	const textareaRef = useRef(null);
 
-	const handleEmojiClick = (emoji) => {
-		setCaption(caption + emoji.native);
-	};
+	// const handleEmojiClick = (emoji) => {
+	// 	setCaption(caption + emoji.native);
+	// };
 	useEffect(() => {
 		setImageSrc(URL.createObjectURL(image));
 	}, [image]);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		if (caption.length === 0) return;
 		setIsLoading(true);
 		try {
 			const formData = new FormData();
@@ -93,16 +94,21 @@ const CreateCaption = ({
 						className="bg-transparent w-full focus:outline-none border border-gray-200 rounded-md resize-none overflow-hidden p-4"
 						placeholder="write caption..."
 					></textarea>
-					<button
+					{/* <button
 						type="button"
 						className="mt-4 text-xl"
 						onClick={() => setShowEmojiPicker(!showEmojiPicker)}
 					>
 						😀
-					</button>
-					{showEmojiPicker && (
-						<Picker data={data} onEmojiSelect={handleEmojiClick} />
-					)}
+					</button> */}
+					{/* {showEmojiPicker && (
+						<Picker
+							data={data}
+							onEmojiSelect={handleEmojiClick}
+							previewPosition="none"
+							searchPosition="none"
+						/>
+					)} */}
 				</div>
 			</div>
 			<div className="px-4 py-3 bg-gray-800 border-t border-white rounded-b-lg flex justify-between">

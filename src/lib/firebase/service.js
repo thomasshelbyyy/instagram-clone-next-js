@@ -272,7 +272,7 @@ export async function getPosts(username) {
 
             return { status: true, data };
         } else {
-            return { status: false, statusCode: 404, message: "Post not found" };
+            return { status: true, statusCode: 404, message: "Post not found", data: [] };
         }
     } catch (error) {
         return { status: false, statusCode: 400, message: error.message };
@@ -294,9 +294,11 @@ export async function getPostById(id) {
             const likesData = likesSnapshot.exists() ? likesSnapshot.data() : { users: [] };
 
             // Ambil data dari dokumen 'commentsData'
-            const commentsDataRef = doc(snapshot.ref, "comments", "commentsData");
-            const commentsSnapshot = await getDoc(commentsDataRef);
-            const commentsData = commentsSnapshot.exists() ? commentsSnapshot.data() : { comments: [] };
+            const commentsSnapshot = await getDocs(collection(firestore, "posts", id, "comments"))
+            const commentsData = commentsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
 
             // Return post dengan data subcollection likes dan comments
             return {
@@ -305,7 +307,7 @@ export async function getPostById(id) {
                 data: {
                     ...postData,
                     likes: likesData.users, // Ambil array users dari likes
-                    comments: commentsData.comments // Ambil array comments dari comments
+                    comments: commentsData // Ambil array comments dari comments
                 }
             };
         } else {
@@ -335,6 +337,25 @@ export function timeAgo(firebaseTimestamp) {
 		return `${Math.floor(differenceInSeconds / 86400)}d ago`; // jika kurang dari 7 hari, tampilkan dalam hari
 	} else {
 		return `${Math.floor(differenceInSeconds / 604800)}w ago`; // jika lebih dari 7 hari, tampilkan dalam minggu
+	}
+}
+export function getTime(firebaseTimestamp) {
+	// Mengonversi timestamp Firebase ke milidetik
+	const timestampInMillis =
+		firebaseTimestamp.seconds * 1000 + firebaseTimestamp.nanoseconds / 1000000;
+	const now = Date.now(); // waktu saat ini dalam milidetik
+	const differenceInSeconds = (now - timestampInMillis) / 1000; // menghitung selisih waktu dalam detik
+
+	if (differenceInSeconds < 60) {
+		return `${Math.floor(differenceInSeconds)}s`; // jika kurang dari 60 detik, tampilkan dalam detik
+	} else if (differenceInSeconds < 3600) {
+		return `${Math.floor(differenceInSeconds / 60)}m`; // jika kurang dari 60 menit, tampilkan dalam menit
+	} else if (differenceInSeconds < 86400) {
+		return `${Math.floor(differenceInSeconds / 3600)}h`; // jika kurang dari 24 jam, tampilkan dalam jam
+	} else if (differenceInSeconds < 604800) {
+		return `${Math.floor(differenceInSeconds / 86400)}d`; // jika kurang dari 7 hari, tampilkan dalam hari
+	} else {
+		return `${Math.floor(differenceInSeconds / 604800)}w`; // jika lebih dari 7 hari, tampilkan dalam minggu
 	}
 }
 
@@ -425,4 +446,145 @@ export async function getLikesByPostId(postId) {
         return {status: false, message: error.message}
     }
 
+}
+
+export async function postComment(postId, userId, username, profilePictureUrl, comment) {
+    try {
+        const postRef = doc(firestore, "posts", postId)
+        const commentRef = collection(firestore, "posts", postId, "comments")
+
+        const newComment = {
+            userId,
+            username,
+            profilePictureUrl,
+            comment,
+            createdAt: Timestamp.now(),
+            likesCount: 0,
+            likes: []
+        }
+
+        await addDoc(commentRef, newComment)
+
+        await updateDoc(postRef, {
+            commentsCount: increment(1)
+        })
+
+        return {status: true}
+    } catch(error) {
+        return {status: false, message: error.message}
+    }
+}
+
+export async function toggleLikeComment(postId, userId, username, profilePictureUrl, commentId, fullname) {
+    try {
+
+        const postRef = doc(firestore, "posts", postId);
+        const commentRef = doc(firestore, "posts", postId, "comments", commentId)
+        const commentSnapshot = await getDoc(commentRef)
+
+        const commentData = {
+            ...commentSnapshot.data()
+        }
+
+        const userIndex = commentData.likes.findIndex(like => like.userId === userId)
+
+        if(userIndex !== -1) {
+            await updateDoc(commentRef, {
+                likes: arrayRemove({postId, userId, username, profilePictureUrl, fullname}),
+                likesCount: increment(-1)
+            })
+        } else {
+            await updateDoc(commentRef, {
+                likes: arrayUnion({postId, userId, username, profilePictureUrl, fullname}),
+                likesCount: increment(1)
+            })
+    
+            return {status: true}
+        }
+
+        
+
+        // const snapshot = await getDoc(likeRef)
+    
+        // const postData = {
+        //     id: snapshot.id,
+        //     ...snapshot.data()
+        // }
+
+        // if (snapshot.exists()) {
+
+        //     // Cek apakah userId sudah ada dalam array users
+        //     const userIndex = postData.users.findIndex(user => user.userId === userId);
+
+        //     if (userIndex !== -1) {
+        //         // Jika like ada, hapus like
+        //         await updateDoc(likeRef, {
+        //             users: arrayRemove({
+        //                 userId,
+        //                 username,
+        //                 profilePictureUrl
+        //             })
+        //         });
+
+        //         // Kurangi likesCount pada dokumen post
+        //         await updateDoc(postRef, {
+        //             likesCount: increment(-1)
+        //         });
+
+        //     } else {
+        //         // Jika like tidak ada, tambahkan like baru
+        //         await updateDoc(likeRef, {
+        //             users: arrayUnion({
+        //                 userId,
+        //                 username,
+        //                 profilePictureUrl
+        //             })
+        //         });
+
+        //         // Tambahkan likesCount pada dokumen post
+        //         await updateDoc(postRef, {
+        //             likesCount: increment(1)
+        //         });
+
+        //     }
+        // } else {
+        //     // Jika dokumen likesData tidak ada, buat dokumen baru dan tambahkan like
+        //     await setDoc(likeRef, {
+        //         users: [{
+        //             userId,
+        //             username,
+        //             profilePictureUrl
+        //         }]
+        //     });
+
+        //     // Tambahkan likesCount pada dokumen post
+        //     await updateDoc(postRef, {
+        //         likesCount: increment(1)
+        //     });
+
+        // }
+
+        // return { status: true };
+    } catch (error) {
+        // Tangkap error jika ada
+        return { status: false, message: error.message };
+    }
+}
+
+export async function getCommentLikes(commentId, postId) {
+    try {
+        const snapshot = await getDoc(doc(firestore, "posts", postId, "comments", commentId))
+        if(!snapshot.exists()) {
+            return {status: false, message: "comment not found"}
+        }
+
+        const commentData = {
+            ...snapshot.data()
+        }
+
+        const likes = commentData.likes
+        return {status: true, data: likes}
+    } catch(error) {
+        return {status: false, message: error.message}
+    }
 }
